@@ -2,6 +2,8 @@
 
 Painel web simples e responsivo para monitorar seu servidor UNRAID pelo celular, usando a API GraphQL nativa do UNRAID.
 
+![UNRAID Dashboard](imgs/dash.png)
+
 ## 📱 Recursos
 
 - **Interface Mobile-First**: Design otimizado para visualização em smartphones
