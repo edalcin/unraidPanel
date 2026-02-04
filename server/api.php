@@ -145,10 +145,6 @@ if (isset($realData['data'])) {
 
     $raw = $realData['data'];
 
-    // DEBUG: Log dos dados brutos do array
-    error_log("DEBUG - Array disks: " . json_encode($raw['array']['disks'] ?? 'N/A'));
-    error_log("DEBUG - Array caches: " . json_encode($raw['array']['caches'] ?? 'N/A'));
-
     // Memória de metrics
     $memTotal = $raw['metrics']['memory']['total'] ?? 0;
     $memUsed = $raw['metrics']['memory']['used'] ?? 0;
@@ -247,8 +243,6 @@ if (isset($realData['data'])) {
             if ($d) {
                 $processed['disks'][] = $d;
                 // Somar ao total do array (apenas discos de dados) - valores em KB
-                error_log("DEBUG - Disk {$d['name']}: fsSize={$d['fsSize']}, fsUsed={$d['fsUsed']}, fsFree={$d['fsFree']}");
-
                 // Usar fsSize se disponível, senão somar fsUsed + fsFree
                 $diskTotal = $d['fsSize'] > 0 ? $d['fsSize'] : ($d['fsUsed'] + $d['fsFree']);
 
@@ -259,7 +253,6 @@ if (isset($realData['data'])) {
             }
         }
     }
-    error_log("DEBUG - Array Total: arrayUsedKB=$arrayUsedKB, arrayTotalKB=$arrayTotalKB");
 
     // Processar Cache
     if (isset($raw['array']['caches'])) {
@@ -268,8 +261,6 @@ if (isset($realData['data'])) {
             if ($d) {
                 $processed['disks'][] = $d;
                 // Somar ao total do cache - valores em KB
-                error_log("DEBUG - Cache {$d['name']}: fsSize={$d['fsSize']}, fsUsed={$d['fsUsed']}, fsFree={$d['fsFree']}");
-
                 // Usar fsSize se disponível, senão somar fsUsed + fsFree
                 $diskTotal = $d['fsSize'] > 0 ? $d['fsSize'] : ($d['fsUsed'] + $d['fsFree']);
 
@@ -280,7 +271,6 @@ if (isset($realData['data'])) {
             }
         }
     }
-    error_log("DEBUG - Cache Total: cacheUsedKB=$cacheUsedKB, cacheTotalKB=$cacheTotalKB");
 
     // Calcular estatísticas do array (converter de KB para TB)
     if ($arrayTotalKB > 0) {

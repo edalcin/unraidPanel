@@ -111,13 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateGauges(cpuPercent, memPercent, arrayPercent, cachePercent) {
-        if (!chartsLoaded) {
-            console.warn('Charts not loaded yet');
-            return;
-        }
-
-        console.log('updateGauges called:', { cpuPercent, memPercent, arrayPercent, cachePercent });
-        console.log('Gauge objects:', { cpuGauge: !!cpuGauge, memGauge: !!memGauge, arrayGauge: !!arrayGauge, cacheGauge: !!cacheGauge });
+        if (!chartsLoaded) return;
 
         if (cpuGauge && cpuData) {
             cpuData.setValue(0, 1, cpuPercent);
@@ -128,18 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
             memGauge.draw(memData, memOptions);
         }
         if (arrayGauge && arrayData && arrayPercent !== undefined) {
-            console.log('Updating array gauge to:', arrayPercent);
             arrayData.setValue(0, 1, arrayPercent);
             arrayGauge.draw(arrayData, arrayOptions);
-        } else {
-            console.warn('Array gauge not ready:', { arrayGauge: !!arrayGauge, arrayData: !!arrayData, arrayPercent });
         }
         if (cacheGauge && cacheData && cachePercent !== undefined) {
-            console.log('Updating cache gauge to:', cachePercent);
             cacheData.setValue(0, 1, cachePercent);
             cacheGauge.draw(cacheData, cacheOptions);
-        } else {
-            console.warn('Cache gauge not ready:', { cacheGauge: !!cacheGauge, cacheData: !!cacheData, cachePercent });
         }
     }
 
@@ -349,68 +337,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI(data) {
-        // DEBUG VISUAL
-        const debugPanel = document.getElementById('debug-panel');
-        if (debugPanel) {
-            let debugText = '=== DEBUG INFO ===\n\n';
-            debugText += 'Timestamp: ' + new Date().toLocaleTimeString() + '\n\n';
-
-            if (data.array_storage) {
-                debugText += 'ARRAY STORAGE:\n';
-                debugText += '  Total: ' + data.array_storage.total + ' TB\n';
-                debugText += '  Used: ' + data.array_storage.used + ' TB\n';
-                debugText += '  Free: ' + data.array_storage.free + ' TB\n';
-                debugText += '  Percent: ' + data.array_storage.percent + '%\n\n';
-            } else {
-                debugText += 'ARRAY STORAGE: NULL\n\n';
-            }
-
-            if (data.cache_storage) {
-                debugText += 'CACHE STORAGE:\n';
-                debugText += '  Total: ' + data.cache_storage.total + ' TB\n';
-                debugText += '  Used: ' + data.cache_storage.used + ' TB\n';
-                debugText += '  Free: ' + data.cache_storage.free + ' TB\n';
-                debugText += '  Percent: ' + data.cache_storage.percent + '%\n\n';
-            } else {
-                debugText += 'CACHE STORAGE: NULL\n\n';
-            }
-
-            debugText += 'GAUGES STATUS:\n';
-            debugText += '  chartsLoaded: ' + chartsLoaded + '\n';
-            debugText += '  cpuGauge: ' + (cpuGauge ? 'OK' : 'NULL') + '\n';
-            debugText += '  memGauge: ' + (memGauge ? 'OK' : 'NULL') + '\n';
-            debugText += '  arrayGauge: ' + (arrayGauge ? 'OK' : 'NULL') + '\n';
-            debugText += '  cacheGauge: ' + (cacheGauge ? 'OK' : 'NULL') + '\n\n';
-
-            debugText += 'ELEMENTS STATUS:\n';
-            const arrayDetailEl = document.getElementById('array-detail');
-            const cacheDetailEl = document.getElementById('cache-detail');
-            debugText += '  array-detail: ' + (arrayDetailEl ? 'OK' : 'NULL') + '\n';
-            if (arrayDetailEl) debugText += '    Text: "' + arrayDetailEl.innerText + '"\n';
-            debugText += '  cache-detail: ' + (cacheDetailEl ? 'OK' : 'NULL') + '\n';
-            if (cacheDetailEl) debugText += '    Text: "' + cacheDetailEl.innerText + '"\n';
-            debugText += '  array-gauge: ' + (document.getElementById('array-gauge') ? 'OK' : 'NULL') + '\n';
-            debugText += '  cache-gauge: ' + (document.getElementById('cache-gauge') ? 'OK' : 'NULL') + '\n\n';
-
-            debugText += 'GAUGE DATA VALUES:\n';
-            if (arrayData) {
-                try {
-                    debugText += '  arrayData value: ' + arrayData.getValue(0, 1) + '\n';
-                } catch(e) {
-                    debugText += '  arrayData value: ERROR - ' + e.message + '\n';
-                }
-            }
-            if (cacheData) {
-                try {
-                    debugText += '  cacheData value: ' + cacheData.getValue(0, 1) + '\n';
-                } catch(e) {
-                    debugText += '  cacheData value: ERROR - ' + e.message + '\n';
-                }
-            }
-
-            debugPanel.innerText = debugText;
-        }
-
         // Server Name
         if (data.server_name) {
             const title = document.getElementById('server-title');
@@ -434,37 +360,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // Array Storage
         let arrayPercent = 0;
         if (data.array_storage) {
-            console.log('Array Storage Data:', data.array_storage);
             arrayPercent = data.array_storage.percent || 0;
             const arrayDetail = document.getElementById('array-detail');
-            if (arrayDetail) {
-                arrayDetail.innerText = `${data.array_storage.used} / ${data.array_storage.total} TB`;
-                console.log('Array Detail Updated:', arrayDetail.innerText);
-            } else {
-                console.error('array-detail element not found!');
-            }
-        } else {
-            console.warn('No array_storage data received');
+            if (arrayDetail) arrayDetail.innerText = `${data.array_storage.used} / ${data.array_storage.total} TB`;
         }
 
         // Cache Storage
         let cachePercent = 0;
         if (data.cache_storage) {
-            console.log('Cache Storage Data:', data.cache_storage);
             cachePercent = data.cache_storage.percent || 0;
             const cacheDetail = document.getElementById('cache-detail');
-            if (cacheDetail) {
-                cacheDetail.innerText = `${data.cache_storage.used} / ${data.cache_storage.total} TB`;
-                console.log('Cache Detail Updated:', cacheDetail.innerText);
-            } else {
-                console.error('cache-detail element not found!');
-            }
-        } else {
-            console.warn('No cache_storage data received');
+            if (cacheDetail) cacheDetail.innerText = `${data.cache_storage.used} / ${data.cache_storage.total} TB`;
         }
 
         // Update Gauges
-        console.log('Updating gauges - CPU:', data.system?.cpu_percent, 'MEM:', data.system?.mem_percent, 'Array:', arrayPercent, 'Cache:', cachePercent);
         if (data.system) {
             updateGauges(
                 data.system.cpu_percent || 0,
