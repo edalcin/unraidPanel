@@ -1,5 +1,6 @@
 # Arquivo de configuração com informações sensíveis
 config.php
+server/config.php
 
 # Diretórios do sistema
 .claude/

@@ -25,16 +25,22 @@ Painel web simples e responsivo para monitorar seu servidor UNRAID pelo celular,
 
 ```bash
 git clone https://github.com/seu-usuario/unraidPanel.git
+cd unraidPanel
 ```
 
 ### 2. Configure o arquivo de configuração
 
-1. Copie o arquivo de exemplo:
+1. Entre na pasta `server/`:
+   ```bash
+   cd server
+   ```
+
+2. Copie o arquivo de exemplo:
    ```bash
    cp config.example.php config.php
    ```
 
-2. Edite o `config.php` com suas informações:
+3. Edite o `config.php` com suas informações:
    - `ACCESS_PIN`: Defina um PIN de 4 dígitos
    - `SERVER_NAME`: Nome que aparecerá no dashboard
    - `UNRAID_HOST`: URL do seu servidor UNRAID (com https://)
@@ -50,7 +56,17 @@ git clone https://github.com/seu-usuario/unraidPanel.git
 
 ### 4. Deploy no servidor web
 
-Copie os seguintes arquivos para o diretório raiz do seu servidor PHP:
+Copie **todo o conteúdo da pasta `server/`** para o diretório raiz do seu servidor PHP:
+
+```bash
+# Exemplo usando SCP
+scp -r server/* usuario@seu-servidor:/var/www/html/unraid/
+
+# Ou usando FTP/SFTP
+# Copie todo o conteúdo da pasta server/ para o servidor
+```
+
+Estrutura final no servidor web:
 
 ```
 📁 Servidor Web (ex: /var/www/html/unraid/)
@@ -62,13 +78,32 @@ Copie os seguintes arquivos para o diretório raiz do seu servidor PHP:
 └── favicon.svg
 ```
 
-**⚠️ Importante**: NÃO copie os arquivos `.gitignore`, `README.md`, `config.example.php` ou a pasta `.git/` para o servidor.
+**⚠️ Importante**:
+- Copie APENAS o conteúdo da pasta `server/`
+- NÃO copie a pasta `server/` em si, apenas seu conteúdo
+- O arquivo `config.php` deve estar no mesmo diretório que os outros arquivos
 
 ### 5. Acesse pelo navegador
 
 Abra o navegador ou navegador do celular e acesse:
 ```
 http://seu-servidor/unraid/
+```
+
+## 📁 Estrutura do Projeto
+
+```
+unraidPanel/
+├── server/              ← Arquivos para deploy no servidor web
+│   ├── index.html
+│   ├── app.js
+│   ├── style.css
+│   ├── api.php
+│   ├── favicon.svg
+│   ├── config.example.php
+│   └── config.php       ← Você cria este arquivo (não commitado)
+├── .gitignore
+└── README.md
 ```
 
 ## 🔒 Segurança
@@ -81,13 +116,13 @@ http://seu-servidor/unraid/
 ## 🎨 Personalização
 
 ### Alterar o tema padrão
-Edite a linha 107 em `app.js`:
+Edite a linha 107 em `server/app.js`:
 ```javascript
 const savedTheme = localStorage.getItem('theme') || 'dark'; // 'dark' ou 'light'
 ```
 
 ### Ajustar intervalo de atualização
-Edite o valor de `REFRESH_INTERVAL` no `config.php` (em milissegundos).
+Edite o valor de `REFRESH_INTERVAL` no `server/config.php` (em milissegundos).
 
 ## 🐛 Solução de Problemas
 
@@ -97,10 +132,10 @@ Edite o valor de `REFRESH_INTERVAL` no `config.php` (em milissegundos).
 - Verifique os logs de erro do PHP
 
 ### Erro de SSL/HTTPS
-Se usar IP local sem certificado válido, pode ser necessário ajustar as configurações de SSL no `api.php` (já configurado por padrão).
+Se usar IP local sem certificado válido, pode ser necessário ajustar as configurações de SSL no `server/api.php` (já configurado por padrão).
 
 ### PIN não funciona
-- Confirme que o PIN definido em `config.php` tem exatamente 4 dígitos
+- Confirme que o PIN definido em `server/config.php` tem exatamente 4 dígitos
 - Limpe o cache do navegador
 
 ## 📄 Licença
