@@ -111,7 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateGauges(cpuPercent, memPercent, arrayPercent, cachePercent) {
-        if (!chartsLoaded) return;
+        if (!chartsLoaded) {
+            console.warn('Charts not loaded yet');
+            return;
+        }
+
+        console.log('updateGauges called:', { cpuPercent, memPercent, arrayPercent, cachePercent });
+        console.log('Gauge objects:', { cpuGauge: !!cpuGauge, memGauge: !!memGauge, arrayGauge: !!arrayGauge, cacheGauge: !!cacheGauge });
 
         if (cpuGauge && cpuData) {
             cpuData.setValue(0, 1, cpuPercent);
@@ -122,12 +128,18 @@ document.addEventListener('DOMContentLoaded', () => {
             memGauge.draw(memData, memOptions);
         }
         if (arrayGauge && arrayData && arrayPercent !== undefined) {
+            console.log('Updating array gauge to:', arrayPercent);
             arrayData.setValue(0, 1, arrayPercent);
             arrayGauge.draw(arrayData, arrayOptions);
+        } else {
+            console.warn('Array gauge not ready:', { arrayGauge: !!arrayGauge, arrayData: !!arrayData, arrayPercent });
         }
         if (cacheGauge && cacheData && cachePercent !== undefined) {
+            console.log('Updating cache gauge to:', cachePercent);
             cacheData.setValue(0, 1, cachePercent);
             cacheGauge.draw(cacheData, cacheOptions);
+        } else {
+            console.warn('Cache gauge not ready:', { cacheGauge: !!cacheGauge, cacheData: !!cacheData, cachePercent });
         }
     }
 
@@ -360,20 +372,37 @@ document.addEventListener('DOMContentLoaded', () => {
         // Array Storage
         let arrayPercent = 0;
         if (data.array_storage) {
+            console.log('Array Storage Data:', data.array_storage);
             arrayPercent = data.array_storage.percent || 0;
             const arrayDetail = document.getElementById('array-detail');
-            if (arrayDetail) arrayDetail.innerText = `${data.array_storage.used} / ${data.array_storage.total} TB`;
+            if (arrayDetail) {
+                arrayDetail.innerText = `${data.array_storage.used} / ${data.array_storage.total} TB`;
+                console.log('Array Detail Updated:', arrayDetail.innerText);
+            } else {
+                console.error('array-detail element not found!');
+            }
+        } else {
+            console.warn('No array_storage data received');
         }
 
         // Cache Storage
         let cachePercent = 0;
         if (data.cache_storage) {
+            console.log('Cache Storage Data:', data.cache_storage);
             cachePercent = data.cache_storage.percent || 0;
             const cacheDetail = document.getElementById('cache-detail');
-            if (cacheDetail) cacheDetail.innerText = `${data.cache_storage.used} / ${data.cache_storage.total} TB`;
+            if (cacheDetail) {
+                cacheDetail.innerText = `${data.cache_storage.used} / ${data.cache_storage.total} TB`;
+                console.log('Cache Detail Updated:', cacheDetail.innerText);
+            } else {
+                console.error('cache-detail element not found!');
+            }
+        } else {
+            console.warn('No cache_storage data received');
         }
 
         // Update Gauges
+        console.log('Updating gauges - CPU:', data.system?.cpu_percent, 'MEM:', data.system?.mem_percent, 'Array:', arrayPercent, 'Cache:', cachePercent);
         if (data.system) {
             updateGauges(
                 data.system.cpu_percent || 0,
