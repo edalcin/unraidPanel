@@ -274,6 +274,29 @@ document.addEventListener('DOMContentLoaded', () => {
             updateGauges(data.system.cpu_percent || 0, data.system.mem_percent || 0);
         }
 
+        // Array Storage
+        if (data.array_storage) {
+            const arrayUsed = document.getElementById('array-used');
+            const arrayTotal = document.getElementById('array-total');
+            const arrayPercent = document.getElementById('array-percent');
+            const arrayProgressFill = document.getElementById('array-progress-fill');
+
+            if (arrayUsed) arrayUsed.innerText = `${data.array_storage.used} TB usado`;
+            if (arrayTotal) arrayTotal.innerText = `${data.array_storage.total} TB total`;
+            if (arrayPercent) {
+                arrayPercent.innerText = `${data.array_storage.percent}%`;
+                // Mudar cor baseado na porcentagem
+                if (data.array_storage.percent >= 90) {
+                    arrayPercent.style.color = 'var(--danger-color)';
+                } else if (data.array_storage.percent >= 75) {
+                    arrayPercent.style.color = '#f39c12';
+                } else {
+                    arrayPercent.style.color = 'var(--accent-color)';
+                }
+            }
+            if (arrayProgressFill) arrayProgressFill.style.width = `${data.array_storage.percent}%`;
+        }
+
         // Disks
         const diskList = document.getElementById('disk-list');
         if (diskList && data.disks) {

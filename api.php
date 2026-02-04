@@ -168,18 +168,33 @@ if (isset($realData['data'])) {
             'mem_total' => round($memTotal / 1073741824, 1),
             'mem_percent' => round($memPercent)
         ],
-        'disks' => []
+        'disks' => [],
+        'array_storage' => [
+            'total' => 0,
+            'used' => 0,
+            'free' => 0,
+            'percent' => 0
+        ]
     ];
+
+    // Variáveis para calcular espaço total do array
+    $arrayTotalBytes = 0;
+    $arrayUsedBytes = 0;
 
     // Função para processar disco
     function processDisk($disk, $type = 'data') {
         if (empty($disk['name'])) return null;
 
         $fill = 0;
+        $fsUsed = 0;
+        $fsFree = 0;
+
         if (isset($disk['fsUsed']) && isset($disk['fsFree']) && $disk['fsUsed'] !== null && $disk['fsFree'] !== null) {
-            $total = $disk['fsUsed'] + $disk['fsFree'];
+            $fsUsed = $disk['fsUsed'];
+            $fsFree = $disk['fsFree'];
+            $total = $fsUsed + $fsFree;
             if ($total > 0) {
-                $fill = round(($disk['fsUsed'] / $total) * 100);
+                $fill = round(($fsUsed / $total) * 100);
             }
         }
 
@@ -191,7 +206,9 @@ if (isset($realData['data'])) {
             'type' => $type,
             'temp' => $disk['temp'] ?? 0,
             'status' => $status,
-            'fill' => $fill
+            'fill' => $fill,
+            'fsUsed' => $fsUsed,
+            'fsFree' => $fsFree
         ];
     }
 
@@ -207,7 +224,12 @@ if (isset($realData['data'])) {
     if (isset($raw['array']['disks'])) {
         foreach ($raw['array']['disks'] as $disk) {
             $d = processDisk($disk, 'data');
-            if ($d) $processed['disks'][] = $d;
+            if ($d) {
+                $processed['disks'][] = $d;
+                // Somar ao total do array (apenas discos de dados)
+                $arrayUsedBytes += $d['fsUsed'];
+                $arrayTotalBytes += ($d['fsUsed'] + $d['fsFree']);
+            }
         }
     }
 
@@ -215,8 +237,23 @@ if (isset($realData['data'])) {
     if (isset($raw['array']['caches'])) {
         foreach ($raw['array']['caches'] as $disk) {
             $d = processDisk($disk, 'cache');
-            if ($d) $processed['disks'][] = $d;
+            if ($d) {
+                $processed['disks'][] = $d;
+                // Somar ao total do array (incluir cache)
+                $arrayUsedBytes += $d['fsUsed'];
+                $arrayTotalBytes += ($d['fsUsed'] + $d['fsFree']);
+            }
         }
+    }
+
+    // Calcular estatísticas do array
+    if ($arrayTotalBytes > 0) {
+        $processed['array_storage'] = [
+            'total' => round($arrayTotalBytes / 1099511627776, 2), // Converter para TB
+            'used' => round($arrayUsedBytes / 1099511627776, 2),
+            'free' => round(($arrayTotalBytes - $arrayUsedBytes) / 1099511627776, 2),
+            'percent' => round(($arrayUsedBytes / $arrayTotalBytes) * 100)
+        ];
     }
 
     echo json_encode(['success' => true, 'data' => $processed]);
