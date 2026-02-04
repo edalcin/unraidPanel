@@ -349,6 +349,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUI(data) {
+        // DEBUG VISUAL
+        const debugPanel = document.getElementById('debug-panel');
+        if (debugPanel) {
+            let debugText = '=== DEBUG INFO ===\n\n';
+            debugText += 'Timestamp: ' + new Date().toLocaleTimeString() + '\n\n';
+
+            if (data.array_storage) {
+                debugText += 'ARRAY STORAGE:\n';
+                debugText += '  Total: ' + data.array_storage.total + ' TB\n';
+                debugText += '  Used: ' + data.array_storage.used + ' TB\n';
+                debugText += '  Free: ' + data.array_storage.free + ' TB\n';
+                debugText += '  Percent: ' + data.array_storage.percent + '%\n\n';
+            } else {
+                debugText += 'ARRAY STORAGE: NULL\n\n';
+            }
+
+            if (data.cache_storage) {
+                debugText += 'CACHE STORAGE:\n';
+                debugText += '  Total: ' + data.cache_storage.total + ' TB\n';
+                debugText += '  Used: ' + data.cache_storage.used + ' TB\n';
+                debugText += '  Free: ' + data.cache_storage.free + ' TB\n';
+                debugText += '  Percent: ' + data.cache_storage.percent + '%\n\n';
+            } else {
+                debugText += 'CACHE STORAGE: NULL\n\n';
+            }
+
+            debugText += 'GAUGES STATUS:\n';
+            debugText += '  chartsLoaded: ' + chartsLoaded + '\n';
+            debugText += '  cpuGauge: ' + (cpuGauge ? 'OK' : 'NULL') + '\n';
+            debugText += '  memGauge: ' + (memGauge ? 'OK' : 'NULL') + '\n';
+            debugText += '  arrayGauge: ' + (arrayGauge ? 'OK' : 'NULL') + '\n';
+            debugText += '  cacheGauge: ' + (cacheGauge ? 'OK' : 'NULL') + '\n\n';
+
+            debugText += 'ELEMENTS STATUS:\n';
+            debugText += '  array-detail: ' + (document.getElementById('array-detail') ? 'OK' : 'NULL') + '\n';
+            debugText += '  cache-detail: ' + (document.getElementById('cache-detail') ? 'OK' : 'NULL') + '\n';
+            debugText += '  array-gauge: ' + (document.getElementById('array-gauge') ? 'OK' : 'NULL') + '\n';
+            debugText += '  cache-gauge: ' + (document.getElementById('cache-gauge') ? 'OK' : 'NULL') + '\n';
+
+            debugPanel.innerText = debugText;
+        }
+
         // Server Name
         if (data.server_name) {
             const title = document.getElementById('server-title');
