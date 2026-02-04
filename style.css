@@ -1,0 +1,388 @@
+:root {
+    /* Variáveis Tema Claro (Default) */
+    --bg-color: #f2f4f6;
+    --text-color: #1f2937;
+    --card-bg: #ffffff;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --primary-color: #3b82f6; /* Azul */
+    --accent-color: #10b981; /* Verde */
+    --danger-color: #ef4444; /* Vermelho */
+    --input-bg: #e5e7eb;
+    --border-color: #d1d5db;
+}
+
+[data-theme="dark"] {
+    /* Variáveis Tema Escuro */
+    --bg-color: #111827; /* Cinza muito escuro / Quase preto */
+    --text-color: #f9fafb;
+    --card-bg: #1f2937;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --input-bg: #374151;
+    --border-color: #4b5563;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px; /* Largura de mobile/tablet pequeno */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header & Controls */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: rgba(128, 128, 128, 0.2);
+}
+
+/* Login Screen */
+#login-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+    text-align: center;
+}
+
+.pin-display {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    justify-content: center;
+}
+
+.pin-dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: var(--input-bg);
+    border: 2px solid var(--border-color);
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.pin-dot.filled {
+    background-color: var(--text-color);
+    border-color: var(--text-color);
+}
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.key {
+    background-color: var(--card-bg);
+    border: none;
+    color: var(--text-color);
+    font-size: 1.5rem;
+    padding: 20px 0;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    cursor: pointer;
+    user-select: none;
+}
+
+.key:active {
+    transform: scale(0.95);
+    background-color: var(--input-bg);
+}
+
+.key.delete {
+    background-color: transparent;
+    box-shadow: none;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dashboard Grid */
+#dashboard-screen {
+    display: none; /* Escondido por padrão */
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 40px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.card.card-half {
+    padding: 12px;
+    align-items: center;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.status-badge {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background-color: var(--input-bg);
+    font-weight: 600;
+}
+
+.status-ok { background-color: rgba(16, 185, 129, 0.2); color: var(--accent-color); }
+.status-warn { background-color: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+
+/* Medidores (CPU/RAM) */
+.meter-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.circle-chart {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary-color) var(--percent), var(--input-bg) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.circle-chart::after {
+    content: attr(data-val) '%';
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    background-color: var(--card-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.metric-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-label { font-size: 0.9rem; opacity: 0.7; }
+.metric-value { font-size: 1.2rem; font-weight: bold; }
+
+/* Lista de Discos */
+.disk-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Custom Scrollbar for Webkit */
+.disk-list::-webkit-scrollbar { width: 6px; }
+.disk-list::-webkit-scrollbar-track { background: transparent; }
+.disk-list::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
+
+.disk-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+.disk-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.disk-icon { font-size: 1.2rem; margin-right: 10px; }
+.disk-info { flex-grow: 1; }
+.disk-name { font-size: 0.9rem; font-weight: 600; }
+.disk-meta { font-size: 0.8rem; opacity: 0.6; }
+
+.disk-temp {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+.temp-hot { color: var(--danger-color); }
+
+/* Cards lado a lado */
+.card-row {
+    display: flex;
+    flex-direction: row !important;
+    gap: 12px;
+    width: 100%;
+}
+
+.card-half {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 50%;
+}
+
+/* Gauges lado a lado */
+.gauges-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.gauge-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.gauge-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--text-color);
+}
+
+.gauge-title span {
+    color: var(--accent-color);
+}
+
+/* Gauge containers */
+.gauge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+}
+
+/* Stats de sistema */
+.system-stat {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    margin-top: 4px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stat-value-inline {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+/* Badge de temperatura */
+.temp-badge {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.temp-badge.temp-hot {
+    color: var(--danger-color);
+}
+
+/* Barra de progresso */
+.progress-bar {
+    height: 6px;
+    background-color: var(--input-bg);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+/* Barra de progresso dos discos */
+.disk-progress {
+    height: 4px;
+    background-color: var(--input-bg);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 4px 0;
+}
+
+.disk-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+}
+
+/* Utilitários */
+.hidden { display: none !important; }
+.fade-in { animation: fadeIn 0.5s ease-in-out; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

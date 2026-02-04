@@ -1,0 +1,12 @@
+# Arquivo de configuração com informações sensíveis
+config.php
+
+# Diretórios do sistema
+.claude/
+.git/
+
+# Arquivos temporários
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

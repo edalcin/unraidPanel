@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UNRAID Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css?v=2">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header / Controls -->
+        <header>
+            <h1 id="server-title">My Server</h1>
+            <button id="theme-toggle" class="icon-btn" aria-label="Alternar Tema">☀</button>
+        </header>
+
+        <!-- Tela de Login (PIN) -->
+        <div id="login-screen" class="fade-in">
+            <h2>Insira o PIN</h2>
+            <div class="pin-display">
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+                <div class="pin-dot"></div>
+            </div>
+
+            <div class="keypad">
+                <button class="key" data-num="1">1</button>
+                <button class="key" data-num="2">2</button>
+                <button class="key" data-num="3">3</button>
+                <button class="key" data-num="4">4</button>
+                <button class="key" data-num="5">5</button>
+                <button class="key" data-num="6">6</button>
+                <button class="key" data-num="7">7</button>
+                <button class="key" data-num="8">8</button>
+                <button class="key" data-num="9">9</button>
+                <div class="key spacer"></div>
+                <button class="key" data-num="0">0</button>
+                <button class="key delete" id="backspace">&#x232B;</button>
+            </div>
+            <p id="login-msg" style="margin-top:20px; color: var(--danger-color); min-height: 24px;"></p>
+        </div>
+
+        <!-- Tela do Dashboard -->
+        <div id="dashboard-screen">
+
+            <!-- Cards de CPU e Memória lado a lado -->
+            <div class="card-row">
+                <div class="card card-half">
+                    <div class="gauge-title">CPU - <span id="cpu-temp">--</span>°C</div>
+                    <div id="cpu-gauge" class="gauge-container"></div>
+                </div>
+                <div class="card card-half">
+                    <div class="gauge-title">Memória</div>
+                    <div id="mem-gauge" class="gauge-container"></div>
+                    <div class="stat-label" id="mem-detail">-- / -- GB</div>
+                </div>
+            </div>
+
+            <!-- Card de Lista de Discos -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Discos</span>
+                </div>
+                <div class="disk-list" id="disk-list">
+                    <!-- Discos serão inseridos aqui via JS -->
+                </div>
+            </div>
+
+            <button id="logout-btn" class="key" style="background-color: var(--card-bg); font-size: 1rem; margin-top: 20px;">Sair</button>
+        </div>
+    </div>
+
+    <script src="app.js?v=8"></script>
+</body>
+</html>
