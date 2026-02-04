@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Google Charts
     let chartsLoaded = false;
-    let cpuGauge, memGauge;
-    let cpuData, memData;
-    let cpuOptions, memOptions;
+    let cpuGauge, memGauge, arrayGauge;
+    let cpuData, memData, arrayData;
+    let cpuOptions, memOptions, arrayOptions;
 
     // Carregar Google Charts
     google.charts.load('current', { packages: ['gauge'] });
@@ -70,9 +70,28 @@ document.addEventListener('DOMContentLoaded', () => {
             memGauge = new google.visualization.Gauge(memContainer);
             memGauge.draw(memData, memOptions);
         }
+
+        // Array Storage Gauge
+        arrayData = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Array', 0]
+        ]);
+        arrayOptions = {
+            width: 120, height: 120,
+            redFrom: 90, redTo: 100,
+            yellowFrom: 75, yellowTo: 90,
+            greenFrom: 0, greenTo: 75,
+            minorTicks: 5,
+            max: 100
+        };
+        const arrayContainer = document.getElementById('array-gauge');
+        if (arrayContainer && chartsLoaded) {
+            arrayGauge = new google.visualization.Gauge(arrayContainer);
+            arrayGauge.draw(arrayData, arrayOptions);
+        }
     }
 
-    function updateGauges(cpuPercent, memPercent) {
+    function updateGauges(cpuPercent, memPercent, arrayPercent) {
         if (!chartsLoaded) return;
 
         if (cpuGauge && cpuData) {
@@ -82,6 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (memGauge && memData) {
             memData.setValue(0, 1, memPercent);
             memGauge.draw(memData, memOptions);
+        }
+        if (arrayGauge && arrayData && arrayPercent !== undefined) {
+            arrayData.setValue(0, 1, arrayPercent);
+            arrayGauge.draw(arrayData, arrayOptions);
         }
     }
 
@@ -193,6 +216,25 @@ document.addEventListener('DOMContentLoaded', () => {
         // Inicializar gauges se ainda não foram
         if (chartsLoaded && !cpuGauge) {
             initGauges();
+        } else if (chartsLoaded && !arrayGauge) {
+            // Se os gauges já existem mas o array gauge não, inicializar apenas ele
+            arrayData = google.visualization.arrayToDataTable([
+                ['Label', 'Value'],
+                ['Array', 0]
+            ]);
+            arrayOptions = {
+                width: 120, height: 120,
+                redFrom: 90, redTo: 100,
+                yellowFrom: 75, yellowTo: 90,
+                greenFrom: 0, greenTo: 75,
+                minorTicks: 5,
+                max: 100
+            };
+            const arrayContainer = document.getElementById('array-gauge');
+            if (arrayContainer) {
+                arrayGauge = new google.visualization.Gauge(arrayContainer);
+                arrayGauge.draw(arrayData, arrayOptions);
+            }
         }
 
         fetchData();
@@ -269,32 +311,23 @@ document.addEventListener('DOMContentLoaded', () => {
             // Memory
             const memDetail = document.getElementById('mem-detail');
             if (memDetail) memDetail.innerText = `${data.system.mem_used} / ${data.system.mem_total} GB`;
-
-            // Update Gauges
-            updateGauges(data.system.cpu_percent || 0, data.system.mem_percent || 0);
         }
 
         // Array Storage
+        let arrayPercent = 0;
         if (data.array_storage) {
-            const arrayUsed = document.getElementById('array-used');
-            const arrayTotal = document.getElementById('array-total');
-            const arrayPercent = document.getElementById('array-percent');
-            const arrayProgressFill = document.getElementById('array-progress-fill');
+            arrayPercent = data.array_storage.percent || 0;
+            const arrayDetail = document.getElementById('array-detail');
+            if (arrayDetail) arrayDetail.innerText = `${data.array_storage.used} / ${data.array_storage.total} TB`;
+        }
 
-            if (arrayUsed) arrayUsed.innerText = `${data.array_storage.used} TB usado`;
-            if (arrayTotal) arrayTotal.innerText = `${data.array_storage.total} TB total`;
-            if (arrayPercent) {
-                arrayPercent.innerText = `${data.array_storage.percent}%`;
-                // Mudar cor baseado na porcentagem
-                if (data.array_storage.percent >= 90) {
-                    arrayPercent.style.color = 'var(--danger-color)';
-                } else if (data.array_storage.percent >= 75) {
-                    arrayPercent.style.color = '#f39c12';
-                } else {
-                    arrayPercent.style.color = 'var(--accent-color)';
-                }
-            }
-            if (arrayProgressFill) arrayProgressFill.style.width = `${data.array_storage.percent}%`;
+        // Update Gauges
+        if (data.system) {
+            updateGauges(
+                data.system.cpu_percent || 0,
+                data.system.mem_percent || 0,
+                arrayPercent
+            );
         }
 
         // Disks
