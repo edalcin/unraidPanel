@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Google Charts
     let chartsLoaded = false;
-    let cpuGauge, memGauge, arrayGauge;
-    let cpuData, memData, arrayData;
-    let cpuOptions, memOptions, arrayOptions;
+    let cpuGauge, memGauge, arrayGauge, cacheGauge;
+    let cpuData, memData, arrayData, cacheData;
+    let cpuOptions, memOptions, arrayOptions, cacheOptions;
 
     // Carregar Google Charts
     google.charts.load('current', { packages: ['gauge'] });
@@ -89,9 +89,28 @@ document.addEventListener('DOMContentLoaded', () => {
             arrayGauge = new google.visualization.Gauge(arrayContainer);
             arrayGauge.draw(arrayData, arrayOptions);
         }
+
+        // Cache Storage Gauge
+        cacheData = google.visualization.arrayToDataTable([
+            ['Label', 'Value'],
+            ['Cache', 0]
+        ]);
+        cacheOptions = {
+            width: 120, height: 120,
+            redFrom: 90, redTo: 100,
+            yellowFrom: 75, yellowTo: 90,
+            greenFrom: 0, greenTo: 75,
+            minorTicks: 5,
+            max: 100
+        };
+        const cacheContainer = document.getElementById('cache-gauge');
+        if (cacheContainer && chartsLoaded) {
+            cacheGauge = new google.visualization.Gauge(cacheContainer);
+            cacheGauge.draw(cacheData, cacheOptions);
+        }
     }
 
-    function updateGauges(cpuPercent, memPercent, arrayPercent) {
+    function updateGauges(cpuPercent, memPercent, arrayPercent, cachePercent) {
         if (!chartsLoaded) return;
 
         if (cpuGauge && cpuData) {
@@ -105,6 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (arrayGauge && arrayData && arrayPercent !== undefined) {
             arrayData.setValue(0, 1, arrayPercent);
             arrayGauge.draw(arrayData, arrayOptions);
+        }
+        if (cacheGauge && cacheData && cachePercent !== undefined) {
+            cacheData.setValue(0, 1, cachePercent);
+            cacheGauge.draw(cacheData, cacheOptions);
         }
     }
 
@@ -216,24 +239,45 @@ document.addEventListener('DOMContentLoaded', () => {
         // Inicializar gauges se ainda não foram
         if (chartsLoaded && !cpuGauge) {
             initGauges();
-        } else if (chartsLoaded && !arrayGauge) {
-            // Se os gauges já existem mas o array gauge não, inicializar apenas ele
-            arrayData = google.visualization.arrayToDataTable([
-                ['Label', 'Value'],
-                ['Array', 0]
-            ]);
-            arrayOptions = {
-                width: 120, height: 120,
-                redFrom: 90, redTo: 100,
-                yellowFrom: 75, yellowTo: 90,
-                greenFrom: 0, greenTo: 75,
-                minorTicks: 5,
-                max: 100
-            };
-            const arrayContainer = document.getElementById('array-gauge');
-            if (arrayContainer) {
-                arrayGauge = new google.visualization.Gauge(arrayContainer);
-                arrayGauge.draw(arrayData, arrayOptions);
+        } else if (chartsLoaded && (!arrayGauge || !cacheGauge)) {
+            // Se os gauges já existem mas array/cache não, inicializar apenas eles
+            if (!arrayGauge) {
+                arrayData = google.visualization.arrayToDataTable([
+                    ['Label', 'Value'],
+                    ['Array', 0]
+                ]);
+                arrayOptions = {
+                    width: 120, height: 120,
+                    redFrom: 90, redTo: 100,
+                    yellowFrom: 75, yellowTo: 90,
+                    greenFrom: 0, greenTo: 75,
+                    minorTicks: 5,
+                    max: 100
+                };
+                const arrayContainer = document.getElementById('array-gauge');
+                if (arrayContainer) {
+                    arrayGauge = new google.visualization.Gauge(arrayContainer);
+                    arrayGauge.draw(arrayData, arrayOptions);
+                }
+            }
+            if (!cacheGauge) {
+                cacheData = google.visualization.arrayToDataTable([
+                    ['Label', 'Value'],
+                    ['Cache', 0]
+                ]);
+                cacheOptions = {
+                    width: 120, height: 120,
+                    redFrom: 90, redTo: 100,
+                    yellowFrom: 75, yellowTo: 90,
+                    greenFrom: 0, greenTo: 75,
+                    minorTicks: 5,
+                    max: 100
+                };
+                const cacheContainer = document.getElementById('cache-gauge');
+                if (cacheContainer) {
+                    cacheGauge = new google.visualization.Gauge(cacheContainer);
+                    cacheGauge.draw(cacheData, cacheOptions);
+                }
             }
         }
 
@@ -321,12 +365,21 @@ document.addEventListener('DOMContentLoaded', () => {
             if (arrayDetail) arrayDetail.innerText = `${data.array_storage.used} / ${data.array_storage.total} TB`;
         }
 
+        // Cache Storage
+        let cachePercent = 0;
+        if (data.cache_storage) {
+            cachePercent = data.cache_storage.percent || 0;
+            const cacheDetail = document.getElementById('cache-detail');
+            if (cacheDetail) cacheDetail.innerText = `${data.cache_storage.used} / ${data.cache_storage.total} TB`;
+        }
+
         // Update Gauges
         if (data.system) {
             updateGauges(
                 data.system.cpu_percent || 0,
                 data.system.mem_percent || 0,
-                arrayPercent
+                arrayPercent,
+                cachePercent
             );
         }
 

@@ -174,12 +174,20 @@ if (isset($realData['data'])) {
             'used' => 0,
             'free' => 0,
             'percent' => 0
+        ],
+        'cache_storage' => [
+            'total' => 0,
+            'used' => 0,
+            'free' => 0,
+            'percent' => 0
         ]
     ];
 
-    // Variáveis para calcular espaço total do array
-    $arrayTotalBytes = 0;
-    $arrayUsedBytes = 0;
+    // Variáveis para calcular espaço total do array e cache (em KB)
+    $arrayTotalKB = 0;
+    $arrayUsedKB = 0;
+    $cacheTotalKB = 0;
+    $cacheUsedKB = 0;
 
     // Função para processar disco
     function processDisk($disk, $type = 'data') {
@@ -226,9 +234,11 @@ if (isset($realData['data'])) {
             $d = processDisk($disk, 'data');
             if ($d) {
                 $processed['disks'][] = $d;
-                // Somar ao total do array (apenas discos de dados)
-                $arrayUsedBytes += $d['fsUsed'];
-                $arrayTotalBytes += ($d['fsUsed'] + $d['fsFree']);
+                // Somar ao total do array (apenas discos de dados) - valores em KB
+                if ($d['fsUsed'] > 0 || $d['fsFree'] > 0) {
+                    $arrayUsedKB += $d['fsUsed'];
+                    $arrayTotalKB += ($d['fsUsed'] + $d['fsFree']);
+                }
             }
         }
     }
@@ -239,20 +249,32 @@ if (isset($realData['data'])) {
             $d = processDisk($disk, 'cache');
             if ($d) {
                 $processed['disks'][] = $d;
-                // Somar ao total do array (incluir cache)
-                $arrayUsedBytes += $d['fsUsed'];
-                $arrayTotalBytes += ($d['fsUsed'] + $d['fsFree']);
+                // Somar ao total do cache - valores em KB
+                if ($d['fsUsed'] > 0 || $d['fsFree'] > 0) {
+                    $cacheUsedKB += $d['fsUsed'];
+                    $cacheTotalKB += ($d['fsUsed'] + $d['fsFree']);
+                }
             }
         }
     }
 
-    // Calcular estatísticas do array
-    if ($arrayTotalBytes > 0) {
+    // Calcular estatísticas do array (converter de KB para TB)
+    if ($arrayTotalKB > 0) {
         $processed['array_storage'] = [
-            'total' => round($arrayTotalBytes / 1099511627776, 2), // Converter para TB
-            'used' => round($arrayUsedBytes / 1099511627776, 2),
-            'free' => round(($arrayTotalBytes - $arrayUsedBytes) / 1099511627776, 2),
-            'percent' => round(($arrayUsedBytes / $arrayTotalBytes) * 100)
+            'total' => round($arrayTotalKB / 1073741824, 2), // KB para TB (1024^3)
+            'used' => round($arrayUsedKB / 1073741824, 2),
+            'free' => round(($arrayTotalKB - $arrayUsedKB) / 1073741824, 2),
+            'percent' => round(($arrayUsedKB / $arrayTotalKB) * 100)
+        ];
+    }
+
+    // Calcular estatísticas do cache (converter de KB para TB)
+    if ($cacheTotalKB > 0) {
+        $processed['cache_storage'] = [
+            'total' => round($cacheTotalKB / 1073741824, 2), // KB para TB (1024^3)
+            'used' => round($cacheUsedKB / 1073741824, 2),
+            'free' => round(($cacheTotalKB - $cacheUsedKB) / 1073741824, 2),
+            'percent' => round(($cacheUsedKB / $cacheTotalKB) * 100)
         ];
     }
 
