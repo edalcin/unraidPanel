@@ -383,10 +383,30 @@ document.addEventListener('DOMContentLoaded', () => {
             debugText += '  cacheGauge: ' + (cacheGauge ? 'OK' : 'NULL') + '\n\n';
 
             debugText += 'ELEMENTS STATUS:\n';
-            debugText += '  array-detail: ' + (document.getElementById('array-detail') ? 'OK' : 'NULL') + '\n';
-            debugText += '  cache-detail: ' + (document.getElementById('cache-detail') ? 'OK' : 'NULL') + '\n';
+            const arrayDetailEl = document.getElementById('array-detail');
+            const cacheDetailEl = document.getElementById('cache-detail');
+            debugText += '  array-detail: ' + (arrayDetailEl ? 'OK' : 'NULL') + '\n';
+            if (arrayDetailEl) debugText += '    Text: "' + arrayDetailEl.innerText + '"\n';
+            debugText += '  cache-detail: ' + (cacheDetailEl ? 'OK' : 'NULL') + '\n';
+            if (cacheDetailEl) debugText += '    Text: "' + cacheDetailEl.innerText + '"\n';
             debugText += '  array-gauge: ' + (document.getElementById('array-gauge') ? 'OK' : 'NULL') + '\n';
-            debugText += '  cache-gauge: ' + (document.getElementById('cache-gauge') ? 'OK' : 'NULL') + '\n';
+            debugText += '  cache-gauge: ' + (document.getElementById('cache-gauge') ? 'OK' : 'NULL') + '\n\n';
+
+            debugText += 'GAUGE DATA VALUES:\n';
+            if (arrayData) {
+                try {
+                    debugText += '  arrayData value: ' + arrayData.getValue(0, 1) + '\n';
+                } catch(e) {
+                    debugText += '  arrayData value: ERROR - ' + e.message + '\n';
+                }
+            }
+            if (cacheData) {
+                try {
+                    debugText += '  cacheData value: ' + cacheData.getValue(0, 1) + '\n';
+                } catch(e) {
+                    debugText += '  cacheData value: ERROR - ' + e.message + '\n';
+                }
+            }
 
             debugPanel.innerText = debugText;
         }
