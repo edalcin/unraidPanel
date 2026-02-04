@@ -75,6 +75,7 @@ $graphQLQuery = '
       name
       temp
       size
+      fsSize
       fsUsed
       fsFree
     }
@@ -82,6 +83,7 @@ $graphQLQuery = '
       name
       temp
       size
+      fsSize
       fsUsed
       fsFree
     }
@@ -89,6 +91,7 @@ $graphQLQuery = '
       name
       temp
       size
+      fsSize
       fsUsed
       fsFree
     }
@@ -139,8 +142,12 @@ if (isset($realData['errors'])) {
 }
 
 if (isset($realData['data'])) {
-    
+
     $raw = $realData['data'];
+
+    // DEBUG: Log dos dados brutos do array
+    error_log("DEBUG - Array disks: " . json_encode($raw['array']['disks'] ?? 'N/A'));
+    error_log("DEBUG - Array caches: " . json_encode($raw['array']['caches'] ?? 'N/A'));
 
     // Memória de metrics
     $memTotal = $raw['metrics']['memory']['total'] ?? 0;
@@ -196,14 +203,18 @@ if (isset($realData['data'])) {
         $fill = 0;
         $fsUsed = 0;
         $fsFree = 0;
+        $fsSize = 0;
 
-        if (isset($disk['fsUsed']) && isset($disk['fsFree']) && $disk['fsUsed'] !== null && $disk['fsFree'] !== null) {
-            $fsUsed = $disk['fsUsed'];
-            $fsFree = $disk['fsFree'];
-            $total = $fsUsed + $fsFree;
-            if ($total > 0) {
-                $fill = round(($fsUsed / $total) * 100);
-            }
+        // Converter strings para números se necessário
+        $fsUsed = isset($disk['fsUsed']) ? (int)$disk['fsUsed'] : 0;
+        $fsFree = isset($disk['fsFree']) ? (int)$disk['fsFree'] : 0;
+        $fsSize = isset($disk['fsSize']) ? (int)$disk['fsSize'] : 0;
+
+        // Calcular total (preferir fsSize se disponível)
+        $total = $fsSize > 0 ? $fsSize : ($fsUsed + $fsFree);
+
+        if ($total > 0 && $fsUsed > 0) {
+            $fill = round(($fsUsed / $total) * 100);
         }
 
         $status = 'OK';
@@ -216,7 +227,8 @@ if (isset($realData['data'])) {
             'status' => $status,
             'fill' => $fill,
             'fsUsed' => $fsUsed,
-            'fsFree' => $fsFree
+            'fsFree' => $fsFree,
+            'fsSize' => $fsSize
         ];
     }
 
@@ -235,13 +247,19 @@ if (isset($realData['data'])) {
             if ($d) {
                 $processed['disks'][] = $d;
                 // Somar ao total do array (apenas discos de dados) - valores em KB
-                if ($d['fsUsed'] > 0 || $d['fsFree'] > 0) {
+                error_log("DEBUG - Disk {$d['name']}: fsSize={$d['fsSize']}, fsUsed={$d['fsUsed']}, fsFree={$d['fsFree']}");
+
+                // Usar fsSize se disponível, senão somar fsUsed + fsFree
+                $diskTotal = $d['fsSize'] > 0 ? $d['fsSize'] : ($d['fsUsed'] + $d['fsFree']);
+
+                if ($diskTotal > 0) {
                     $arrayUsedKB += $d['fsUsed'];
-                    $arrayTotalKB += ($d['fsUsed'] + $d['fsFree']);
+                    $arrayTotalKB += $diskTotal;
                 }
             }
         }
     }
+    error_log("DEBUG - Array Total: arrayUsedKB=$arrayUsedKB, arrayTotalKB=$arrayTotalKB");
 
     // Processar Cache
     if (isset($raw['array']['caches'])) {
@@ -250,13 +268,19 @@ if (isset($realData['data'])) {
             if ($d) {
                 $processed['disks'][] = $d;
                 // Somar ao total do cache - valores em KB
-                if ($d['fsUsed'] > 0 || $d['fsFree'] > 0) {
+                error_log("DEBUG - Cache {$d['name']}: fsSize={$d['fsSize']}, fsUsed={$d['fsUsed']}, fsFree={$d['fsFree']}");
+
+                // Usar fsSize se disponível, senão somar fsUsed + fsFree
+                $diskTotal = $d['fsSize'] > 0 ? $d['fsSize'] : ($d['fsUsed'] + $d['fsFree']);
+
+                if ($diskTotal > 0) {
                     $cacheUsedKB += $d['fsUsed'];
-                    $cacheTotalKB += ($d['fsUsed'] + $d['fsFree']);
+                    $cacheTotalKB += $diskTotal;
                 }
             }
         }
     }
+    error_log("DEBUG - Cache Total: cacheUsedKB=$cacheUsedKB, cacheTotalKB=$cacheTotalKB");
 
     // Calcular estatísticas do array (converter de KB para TB)
     if ($arrayTotalKB > 0) {
