@@ -2,6 +2,9 @@
 config.php
 server/config.php
 
+# Arquivo de debug (não comitar)
+server/test.php
+
 # Diretórios do sistema
 .claude/
 .git/
